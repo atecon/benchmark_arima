@@ -1,0 +1,101 @@
+
+set verbose off
+set warnings off
+clear
+#open data10-2.gdt
+
+foreign language=python
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jun 15 21:13:10 2020
+
+@author: at
+"""
+
+import pandas as pd
+from statsmodels.tsa.arima.model import ARIMA
+import os
+import timeit
+
+print(os.getcwd())
+#df = pd.read_csv('../data/electricity.csv')
+df = pd.read_csv('../data/electricity.csv')
+#df["time"] = range(0,744)
+print(df.head())
+print(df.mean())
+
+RANGE_p = list(range(1, 2))
+RANGE_q = list(range(0, 2))
+RANGE_P = list(range(0, 2))
+RANGE_Q = list(range(0, 2))
+D = 0
+d = 0
+
+SAMPLE_LENGTH = [50, 150, 500, 744]
+
+
+def estimate_arima(y, X, p, d, q, P, D, Q):
+    start = timeit.default_timer()
+    try:
+        model = ARIMA(y, exog=X, order=(p, d, q), seasonal_order=(P, D, Q, 24),
+                      trend='c')
+        model_fit = model.fit()
+        return timeit.default_timer() - start
+    except:
+        print("Error: Failed to estimate ARIMA(%d, %d, %d)(%d, %d, %d).\n"
+              % (p, d, q, P, D, Q))
+        return -999
+
+
+def loop_over_parameters(y, X, RANGE_p, d, RANGE_q, RANGE_P, D, RANGE_Q):
+    results = []
+    for p in RANGE_p:
+        for q in RANGE_q:
+            for P in RANGE_P:
+                for Q in RANGE_Q:
+                    time = estimate_arima(y, X, p, d, q, P, D, Q)
+
+                    ncols = 1 + 1 	#len(X.columns)
+                    dict_results = {'k': ncols, 'p': p, 'd': d,
+                    	'q': q, 'P': P, 'D': D, 'Q': Q, 'time': time}
+                    results.append(dict_results)
+    return results
+
+
+
+for i in SAMPLE_LENGTH:
+    print(i)
+    y = df[df.index < i]["load"]
+    X = df[df.index < i]["temp"]
+
+    results = loop_over_parameters(y, X, RANGE_p, d, RANGE_q, RANGE_P, D, RANGE_Q)
+    if i == min(SAMPLE_LENGTH):
+        df_results = pd.DataFrame(results)
+        df_results["T"] = i
+    else:
+        df_tmp = pd.DataFrame(results)
+        df_tmp["T"] = i
+        df_results = pd.concat([df_results, df_tmp])
+
+df_results.to_csv('../data/python_arima_duration.csv', index=False)
+
+end foreign
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+function scalar estimate_arima (const series y,
+                                const list L[null],
+                                const int p[0::],
+                                const int d[0::],
+                                const int q[0::],
+                                const int P[0::],
+                                const int D[0::],
+                                const int Q[0::],
+                                scalar *error,
+                                const bool quiet[TRUE])
+    /* Execute actual ARIMA command
+    return: type, estimation time in seconds. */
+
+    if quiet == TRUE
+        string option = "--quiet"
+    else
+        string option = ""
+    endif
+
+    set stopwatch
+    catch arima p d q ; P D Q ; y L @option
+
+    error = $error
+    if error
+        printf "Error: Failed to estimate ARIMA(%d, %d, %d)(%d, %d, %d).\n", p, d, q, P, D, Q
+        return NA
+    else
+        return $stopwatch
+    endif
+end function
+
+
+
+function matrix loop_over_parameters (const series y,
+                                const list L[null],
+                                const matrix RANGE_p,
+                                const int d,
+                                const matrix RANGE_q,
+                                const matrix RANGE_P,
+                                const int D,
+                                const matrix RANGE_Q,
+                                const bool quiet[TRUE])
+    /* Loop over parameter values and estimate ARIMA models
+    return: matrix, Holding estimation time and parameter values. */
+
+    matrix RESULTS = {}
+    scalar error = FALSE
+
+    loop p = 1..cols(RANGE_p)
+        loop q = 1..cols(RANGE_q)
+            loop P = 1..cols(RANGE_P)
+                loop Q = 1..cols(RANGE_Q)
+
+                    scalar elapsed = estimate_arima(y, L, RANGE_p[p], d, RANGE_q[q], RANGE_P[P], D, RANGE_Q[Q], &error, quiet)
+
+                    matrix RESULTS |= nelem(L) ~ RANGE_p[p] ~ d ~ RANGE_q[q] ~ RANGE_P[P] ~ D ~ RANGE_Q[Q] ~ elapsed ~ $nobs
+
+                    error = 0           # reset
+                endloop
+            endloop
+        endloop
+    endloop
+
+    cnameset(RESULTS, "k p d q P D Q time T")
+
+    return RESULTS
+end function

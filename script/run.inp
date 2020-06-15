@@ -1,0 +1,86 @@
+set verbose off
+set warnings off
+clear
+open data10-2.gdt
+
+include "../src/helper.inp" --force
+
+/*
+Arguments:  p d q [ ; P D Q ] ; depvar [ indepvars ]
+Options:    --verbose (print details of iterations)
+            --quiet (don't print out results)
+            --vcv (print covariance matrix)
+            --hessian (see below)
+            --opg (see below)
+            --nc (do not include a constant)
+            --conditional (use conditional maximum likelihood)
+            --x-12-arima (use X-12-ARIMA for estimation)
+            --lbfgs (use L-BFGS-B maximizer)
+            --y-diff-only (ARIMAX special, see below)
+*/
+
+# Set list of exogenous
+series Y = load
+list L = const temp
+
+# Set parameters
+matrix RANGE_p = seq(1, 1)
+matrix RANGE_q = seq(0, 1)
+matrix RANGE_P = seq(0, 1)
+matrix RANGE_Q = seq(0, 1)
+scalar D = 0
+scalar d = 0
+
+scalar QUIET = TRUE
+
+# Sample lengths to evaluate
+matrix SAMPLE_LENGTH = {50, 150, 500, 744}
+
+# store timing results
+matrix RESULTS = {}
+
+genr time
+
+loop i = 1..cols(SAMPLE_LENGTH)
+
+    smpl full
+    smpl time <= SAMPLE_LENGTH[i] --restrict --replace
+
+    RESULTS |= loop_over_parameters(Y, L, RANGE_p, d, RANGE_q, RANGE_P, D, RANGE_Q, QUIET)
+
+    printf "Info: Finished evaluation for T = %d observations.\n", $nobs
+    flush
+endloop
+
+#printf "%8.3f\n", RESULTS
+
+# Import python results
+open "../data/python_arima_duration.csv" -p -q
+matrix python_res = {dataset}
+
+
+matrix mat = RESULTS[,1:7] ~ ((python_res[,8] ./ RESULTS[,8])) ~ python_res[,9]
+strings colnames = cnameget(RESULTS)
+colnames[8] = "times_faster"
+cnameset(mat, colnames)
+
+
+printf "%10.3f\n", mat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
