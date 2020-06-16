@@ -13,17 +13,44 @@ Details on gretl's arima command: http://gretl.sourceforge.net/gretl-help/cmdref
 
 # Benchmark settings and results
 ## Benchmark settings
-Using an hourly data set of electricity loads (./data/electricity) and temperature dynamics
+Using an hourly data set of electricity loads and temperature dynamics (T = 744). The data set is stored in "./data/electricity".
 
-## Results
-For
+We estimate several SARIMAX type of models:
+*Endogenous*: ```load```
+*Exogenous*: ```temp``` and ```intercept```
 
+The exercise is done for the followong parameter ranges:
+
+- ```p```: [1]
+- ```d```: [0]
+- ```q```: [0, 1]
+- ```P```: [0, 1]
+- ```D```: [0]
+- ```Q```: [0, 1]
+
+The exercise is also conducted for different sample lenghts:
+- ```T```: [50, 150, 500, 744]
+
+
+*NOTE*: We've evidence that results look similarly 'bad' for Python for much larger SARIMAX types of models with 15 exogenous variables
+
+## Measuring differences
+For all parameter combinations we compute the ratio of speed as time(python) / time(gretl).
+
+- A ```ratio``` of one indicates the same speed.
+- If ```ratio``` > 1 Python is x percent lower compared to gretl.
+- If ```ratio``` < 1 Python is x percent faster compared to gretl.
 
 
 ## Versions used
-
 - Gretl: 2020c (build data 2020-06-16)
 - Python: Python 3.8.1
 - statsmodels: 0.11.0
+
+
+# Results
+{{summary_results.txt}}
+
+
 
 
