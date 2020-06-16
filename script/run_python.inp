@@ -1,8 +1,7 @@
-
 set verbose off
 set warnings off
 clear
-#open data10-2.gdt
+
 
 foreign language=python
 #!/usr/bin/env python3
@@ -19,11 +18,9 @@ import os
 import timeit
 
 print(os.getcwd())
-#df = pd.read_csv('../data/electricity.csv')
 df = pd.read_csv('../data/electricity.csv')
-#df["time"] = range(0,744)
-print(df.head())
-print(df.mean())
+#print(df.head())
+#print(df.mean())
 
 RANGE_p = list(range(1, 2))
 RANGE_q = list(range(0, 2))

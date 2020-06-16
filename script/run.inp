@@ -57,6 +57,7 @@ endloop
 # Import python results
 open "../data/python_arima_duration.csv" -p -q
 matrix python_res = {dataset}
+python_res = (python_res .= -999) ? NA : python_res
 
 
 matrix mat = RESULTS[,1:7] ~ ((python_res[,8] ./ RESULTS[,8])) ~ python_res[,9]
