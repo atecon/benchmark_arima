@@ -1,9 +1,9 @@
 # benchmark_arima
-Comparison of estimation speed of ARIMA-type models between Python's 'statsmodels' module and Gretl's built-in aparatus.
+Comparison of estimation speed of ARIMA-type models between Python's 'statsmodels' module and Gretl's built-in apparatus.
 
 *Key findings*
-- Both Gretl's built-in aparatus of the Kalman filter and the optimization algorithm (BFGS) is very fast compared to Python and 'statsmodels'.
-- We find that -- dependend on the ARIMA parameter settings -- gretl is about 100 times fast. For some settings even much faster.
+- Both Gretl's built-in apparatus of the Kalman filter and the optimization algorithm (BFGS) is very fast compared to Python and 'statsmodels'.
+- We find that -- dependent on the ARIMA parameter settings -- Gretl is about 100 times faster. For some settings even much faster.
 - Surprisingly, even for simple AR(1) models gretl is about 50 times faster.
 
 # Problem
@@ -11,20 +11,21 @@ ARIMA type of time-series models are widely applied. Speed of estimation the mod
 
 For instance, if one wants to estimate separate models for a sales forecasting probleme for hundred thousands of articles, computational time is relevant. Also, the construction of probability forecasts or Monte Carlo simulations are computationally heavy.
 
-This project compares the estimation speed of 'statsmodels', a wll-known popular Python library, with gretl's built-in ```arima``` command.
+This project compares the estimation speed of 'statsmodels', a well-known popular Python library (https://www.statsmodels.org/stable/index.html), with gretl's built-in ```arima``` command.
 
 More on gretl here: http://gretl.sourceforge.net/
+
 Details on gretl's arima command: http://gretl.sourceforge.net/gretl-help/cmdref.html#arima
 
 # Benchmark settings and results
 ## Benchmark settings
-Using an hourly data set of electricity loads and temperature dynamics (T = 744). The data set is stored in "./data/electricity".
+An hourly data set of electricity loads and temperature dynamics (T = 744) is used. The data set is stored in "./data/electricity".
 
 We estimate several SARIMAX type of models:
-*Endogenous*: ```load```
-*Exogenous*: ```temp``` and ```intercept```
+- Endogenous: ```load```
+- Exogenous: ```temp``` and ```intercept```
 
-The exercise is done for the followong parameter ranges:
+The exercise is done for the following parameter ranges:
 
 - ```p```: [1]
 - ```d```: [0]
@@ -33,16 +34,16 @@ The exercise is done for the followong parameter ranges:
 - ```D```: [0]
 - ```Q```: [0, 1]
 
-The exercise is also conducted for different sample lenghts:
+The exercise is also conducted for different sample lengths:
 - ```T```: [50, 150, 500, 744]
 
 
 *NOTE*: We've evidence that results look similarly 'bad' for Python for much larger SARIMAX types of models with 15 exogenous variables
 
 ## Measuring differences
-For all parameter combinations we compute the ratio of speed as time(python) / time(gretl).
+For all parameter combinations we compute the ratio of speed as: ```time(python) / time(gretl)```.
 
-- A ```ratio``` of one indicates the same speed.
+- A ```ratio``` of 1 indicates the same speed.
 - If ```ratio``` > 1 Python is x percent lower compared to gretl.
 - If ```ratio``` < 1 Python is x percent faster compared to gretl.
 
@@ -58,15 +59,15 @@ TBA
 
 
 # Replication files
-Python code: <./script/run_python.inp> includes the actual Python code in gretl's "foreign block" which allows to execute Python from Gretl. The Python job also writes the <./data/python_arima_duration.csv>.
+Python code: <./script/run_python.inp> includes the actual Python code in gretl's "foreign block" which allows to execute Python from Gretl. The Python job also writes the file <./data/python_arima_duration.csv>.
 Simply copy and paste the Python code for running it outside Gretl.
 
-Gretl code: <./script/run.inp> includes the Gretl code for running the exercise using Gretl. It also compares the results of Gretl and Python (reading <./data/python_arima_duration.csv>), and write thes file <summary_results.txt>.
+Gretl code: <./script/run.inp> includes the Gretl code for running. It also compares the results of Gretl and Python (reading <./data/python_arima_duration.csv>), and write the file <summary_results.txt>.
 
 
 # Results (<summary_results.txt>)
 	Summary speed comparison estimating ARIMA-type models.
-	between Python's 'statsmodels' package and gretl's built-in aparatus.
+	between Python's 'statsmodels' package and gretl's built-in apparatus.
 
 	Dataset used: ./data/electricity
 

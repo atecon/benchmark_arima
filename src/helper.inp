@@ -7,7 +7,7 @@ function void write_summary_to_file (const matrix comparison,
     catch outfile @path
 
     print "Summary speed comparison estimating ARIMA-type models."
-    print "between Python's 'statsmodels' package and gretl's built-in aparatus."
+    print "between Python's 'statsmodels' package and gretl's built-in apparatus."
     print ""
     print "Dataset used: ./data/electricity"
     print ""
