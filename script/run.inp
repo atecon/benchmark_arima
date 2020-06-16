@@ -4,7 +4,6 @@ clear
 open data10-2.gdt
 
 include "../src/helper.inp" --force
-
 /*
 Arguments:  p d q [ ; P D Q ] ; depvar [ indepvars ]
 Options:    --verbose (print details of iterations)
@@ -52,36 +51,20 @@ loop i = 1..cols(SAMPLE_LENGTH)
     flush
 endloop
 
-#printf "%8.3f\n", RESULTS
 
 # Import python results
 open "../data/python_arima_duration.csv" -p -q
 matrix python_res = {dataset}
 python_res = (python_res .= -999) ? NA : python_res
 
-
-matrix mat = RESULTS[,1:7] ~ ((python_res[,8] ./ RESULTS[,8])) ~ python_res[,9]
+# Compute speed ratio
+matrix comparison = RESULTS[,1:7] ~ ((python_res[,8] ./ RESULTS[,8])) ~ python_res[,9]
 strings colnames = cnameget(RESULTS)
-colnames[8] = "times_faster"
-cnameset(mat, colnames)
+colnames[8] = "ratio"
+cnameset(comparison, colnames)
 
 
-printf "%10.3f\n", mat
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+write_summary_to_file(comparison, SAMPLE_LENGTH, "../data/summary_results.txt")
+printf "%10.3f\n", comparison
 
 

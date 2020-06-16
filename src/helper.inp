@@ -1,3 +1,36 @@
+function void write_summary_to_file (const matrix comparison,
+                                    const matrix SAMPLE_LENGTH,
+                                    const string path)
+    /* Write results for each sample length (T) to a single file.
+    return: void */
+
+    catch outfile @path
+
+    print "Summary speed comparison estimating ARIMA-type models."
+    print "between Python's 'statsmodels' package and gretl's built-in aparatus."
+    print ""
+    print "Dataset used: ./data/electricity"
+    print ""
+    print "Legend:"
+    print "k: Number of exogenous variables (incl. intercept)"
+    print "ratio: time(Python) / time(gretl)"
+    print "T: sample length"
+    print "p, d, q, P, D, Q: respective SARIMA parameters"
+    print ""
+    print ""
+
+    loop i = 1..cols(SAMPLE_LENGTH)
+        matrix mask = (comparison[, instrings(cnameget(comparison), "T")] .= SAMPLE_LENGTH[i])
+        printf "%10.3f\n", selifr(comparison, mask)
+    endloop
+    end outfile
+
+    if $error
+        printf "\nError: Failed to write summary results to '%s'", path
+    endif
+end function
+
+
 function scalar estimate_arima (const series y,
                                 const list L[null],
                                 const int p[0::],
