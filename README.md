@@ -1,7 +1,7 @@
 # benchmark_arima
 Comparison of estimation speed of ARIMA-type models between Python's 'statsmodels' module and Gretl's built-in aparatus.
 
-* Key findings*
+*Key findings*
 - Both Gretl's built-in aparatus of the Kalman filter and the optimization algorithm (BFGS) is very fast compared to Python and 'statsmodels'.
 - We find that -- dependend on the ARIMA parameter settings -- gretl is about 100 times fast. For some settings even much faster.
 - Surprisingly, even for simple AR(1) models gretl is about 50 times faster.
@@ -57,7 +57,14 @@ For all parameter combinations we compute the ratio of speed as time(python) / t
 TBA
 
 
-# Results
+# Replication files
+Python code: <./script/run_python.inp> includes the actual Python code in gretl's "foreign block" which allows to execute Python from Gretl. The Python job also writes the <./data/python_arima_duration.csv>.
+Simply copy and paste the Python code for running it outside Gretl.
+
+Gretl code: <./script/run.inp> includes the Gretl code for running the exercise using Gretl. It also compares the results of Gretl and Python (reading <./data/python_arima_duration.csv>), and write thes file <summary_results.txt>.
+
+
+# Results (<summary_results.txt>)
 	Summary speed comparison estimating ARIMA-type models.
 	between Python's 'statsmodels' package and gretl's built-in aparatus.
 
@@ -109,9 +116,4 @@ TBA
      2.000     1.000     0.000     1.000     0.000     0.000     1.000   274.934   744.000
      2.000     1.000     0.000     1.000     1.000     0.000     0.000   765.818   744.000
      2.000     1.000     0.000     1.000     1.000     0.000     1.000   147.624   744.000
-
-
-
-
-
 
