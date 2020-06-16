@@ -64,7 +64,7 @@ colnames[8] = "ratio"
 cnameset(comparison, colnames)
 
 
-write_summary_to_file(comparison, SAMPLE_LENGTH, "../data/summary_results.txt")
+write_summary_to_file(comparison, SAMPLE_LENGTH, "summary_results.txt")
 printf "%10.3f\n", comparison
 
 
