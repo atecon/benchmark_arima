@@ -1,28 +1,61 @@
-function void write_summary_to_file (const matrix comparison,
+function void write_gretl_results_to_file (const matrix results,
+                                        const matrix SAMPLE_LENGTH,
+                                        const string name_dataset,
+                                        const string filename)
+    /* Write results for each sample length (T) to a single file.
+    return: void */
+
+    catch outfile "@filename"
+        print "Summary of gretl's timing results"
+        print "using its built-in command 'arima'."
+        printf "\nDataset used: ./data/%s\n\n", name_dataset
+        print "Legend:"
+        print "k: Number of exogenous variables (incl. intercept)"
+        print "T: sample length"
+        print "fcount: Number of function evaluations"
+        print "gcount: Number of gradient evaluations"
+        print "p, d, q, P, D, Q: respective SARIMA parameters"
+        print ""
+        print ""
+
+        print_results_by_numobs(results, SAMPLE_LENGTH)
+    end outfile
+
+    if $error
+        printf "\nError: Failed to write '%s'", filename
+    endif
+end function
+
+function void print_results_by_numobs (const matrix results,
+                                       const matrix SAMPLE_LENGTH)
+    /* Print results for each sample length separately. */
+
+    loop i = 1..cols(SAMPLE_LENGTH)
+        matrix mask = (results[, instrings(cnameget(results), "T")] .= SAMPLE_LENGTH[i])
+        printf "%10.3f\n", selifr(results, mask)
+    endloop
+end function
+
+function void write_comparison_to_file (const matrix comparison,
                                     const matrix SAMPLE_LENGTH,
+                                    const string name_dataset,
                                     const string path)
     /* Write results for each sample length (T) to a single file.
     return: void */
 
-    catch outfile @path
+    catch outfile "@path"
+        print "Summary speed comparison estimating ARIMA-type models."
+        print "between Python's 'statsmodels' package and gretl's built-in apparatus."
+        printf "\nDataset used: ./data/%s\n\n", name_dataset
+        print "Legend:"
+        print "k: Number of exogenous variables (incl. intercept)"
+        print "ratio: time(Python) / time(gretl)"
+        print "T: sample length"
+        print "p, d, q, P, D, Q: respective SARIMA parameters"
+        print ""
+        print ""
 
-    print "Summary speed comparison estimating ARIMA-type models."
-    print "between Python's 'statsmodels' package and gretl's built-in apparatus."
-    print ""
-    print "Dataset used: ./data/electricity"
-    print ""
-    print "Legend:"
-    print "k: Number of exogenous variables (incl. intercept)"
-    print "ratio: time(Python) / time(gretl)"
-    print "T: sample length"
-    print "p, d, q, P, D, Q: respective SARIMA parameters"
-    print ""
-    print ""
-
-    loop i = 1..cols(SAMPLE_LENGTH)
-        matrix mask = (comparison[, instrings(cnameget(comparison), "T")] .= SAMPLE_LENGTH[i])
-        printf "%10.3f\n", selifr(comparison, mask)
-    endloop
+        print_results_by_numobs(comparison, SAMPLE_LENGTH)
     end outfile
 
     if $error
@@ -31,7 +64,7 @@ function void write_summary_to_file (const matrix comparison,
 end function
 
 
-function scalar estimate_arima (const series y,
+function bundle estimate_arima (const series y,
                                 const list L[null],
                                 const int p[0::],
                                 const int d[0::],
@@ -43,6 +76,8 @@ function scalar estimate_arima (const series y,
                                 const bool quiet[TRUE])
     /* Execute actual ARIMA command
     return: type, estimation time in seconds. */
+
+    bundle B = null
 
     if quiet == TRUE
         string option = "--quiet"
@@ -56,10 +91,13 @@ function scalar estimate_arima (const series y,
     error = $error
     if error
         printf "Error: Failed to estimate ARIMA(%d, %d, %d)(%d, %d, %d).\n", p, d, q, P, D, Q
-        return NA
     else
-        return $stopwatch
+        B.time = $stopwatch
+        B.neval_gradient = $model.grcount
+        B.neval_function = $model.fncount
     endif
+
+    return B
 end function
 
 
@@ -84,9 +122,9 @@ function matrix loop_over_parameters (const series y,
             loop P = 1..cols(RANGE_P)
                 loop Q = 1..cols(RANGE_Q)
 
-                    scalar elapsed = estimate_arima(y, L, RANGE_p[p], d, RANGE_q[q], RANGE_P[P], D, RANGE_Q[Q], &error, quiet)
+                    bundle B = estimate_arima(y, L, RANGE_p[p], d, RANGE_q[q], RANGE_P[P], D, RANGE_Q[Q], &error, quiet)
 
-                    matrix RESULTS |= nelem(L) ~ RANGE_p[p] ~ d ~ RANGE_q[q] ~ RANGE_P[P] ~ D ~ RANGE_Q[Q] ~ elapsed ~ $nobs
+                    matrix RESULTS |= nelem(L) ~ RANGE_p[p] ~ d ~ RANGE_q[q] ~ RANGE_P[P] ~ D ~ RANGE_Q[Q] ~ B.time ~ $nobs ~ B.neval_function ~ B.neval_gradient
 
                     error = 0           # reset
                 endloop
@@ -94,7 +132,25 @@ function matrix loop_over_parameters (const series y,
         endloop
     endloop
 
-    cnameset(RESULTS, "k p d q P D Q time T")
+    cnameset(RESULTS, "k p d q P D Q time T fcount gcount")
 
     return RESULTS
+end function
+
+function matrix comparison_matrix (const matrix gretl_results,
+                                    const matrix python_results)
+    /* Compute ratio of timings and merge results.
+    return: matrix */
+
+    matrix comparison = gretl_results[,1:7] ~ ((python_results[,8] ./ gretl_results[,8])) ~ python_results[,9]
+
+    # Construct column labels
+    strings colnames = cnameget(gretl_results)
+    colnames[8] = "ratio"
+    # Drop two column labels for which we don't have Python counterparts, yet
+    strings colnames = strdrop(colnames, "fcount")
+    strings colnames = strdrop(colnames, "gcount")
+    cnameset(comparison, colnames)
+
+    return  comparison
 end function

@@ -79,20 +79,3 @@ df_results.to_csv('../data/python_arima_duration.csv', index=False)
 
 end foreign
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -41,6 +41,19 @@ The exercise is also conducted for different sample lengths:
 *NOTE*: We've evidence that results look similarly 'bad' for Python for much larger SARIMAX types of models with 15 exogenous variables
 
 ## Measuring differences
+We compare the execution time of the following commands only:
+
+Gretl:
+
+    arima p d q ; P D Q ; y L
+
+Python:
+
+    model = ARIMA(y, exog=X, order=(p, d, q), seasonal_order=(P, D, Q, 24),
+                trend='c')
+    model_fit = model.fit()
+
+
 For all parameter combinations we compute the ratio of speed as: ```time(python) / time(gretl)```.
 
 - A ```ratio``` of 1 indicates the same speed.
@@ -48,73 +61,76 @@ For all parameter combinations we compute the ratio of speed as: ```time(python)
 - If ```ratio``` < 1 Python is x percent faster compared to gretl.
 
 
-## Versions used
+## Software versions and system used
 - Gretl: 2020c (build data 2020-06-16)
 - Python: Python 3.8.1
 - statsmodels: 0.11.0
-
+- Ran on Ubuntu 20.04
+- Dual core Intel(R) Core(TM) i7-3520M CPU @ 2.90GHz
 
 ## Some details on the underlying algorithms
-TBA
+- Gretl switched away from Kalman to Guy Melard's algorithm AS197.
+- Python makes use of its own Kalman apparatus.
 
 
 # Replication files
 Python code: <./script/run_python.inp> includes the actual Python code in gretl's "foreign block" which allows to execute Python from Gretl. The Python job also writes the file <./data/python_arima_duration.csv>.
 Simply copy and paste the Python code for running it outside Gretl.
 
-Gretl code: <./script/run.inp> includes the Gretl code for running. It also compares the results of Gretl and Python (reading <./data/python_arima_duration.csv>), and write the file <summary_results.txt>.
+Gretl code: <./script/run_gretl.inp> includes the Gretl code for running. Details of the computational time as well as of the number of both function and gradient evaluations are stored in <./output/gretl_results.txt>
+It also compares the results of Gretl and Python (reading <./data/python_arima_duration.csv>), and writes the file <./output/comparison_results.txt>.
 
 
 # Results (<summary_results.txt>)
 	Summary speed comparison estimating ARIMA-type models.
-	between Python's 'statsmodels' package and gretl's built-in apparatus.
+    between Python's 'statsmodels' package and gretl's built-in apparatus.
 
-	Dataset used: ./data/electricity
+    Dataset used: ./data/electricity.csv
 
-	Legend:
-	k: Number of exogenous variables (incl. intercept)
-	ratio: time(Python) / time(gretl)
-	T: sample length
-	p, d, q, P, D, Q: respective SARIMA parameters
+    Legend:
+    k: Number of exogenous variables (incl. intercept)
+    ratio: time(Python) / time(gretl)
+    T: sample length
+    p, d, q, P, D, Q: respective SARIMA parameters
 
-
-         k         p         d         q         P         D         Q     ratio         T
-     2.000     1.000     0.000     0.000     0.000     0.000     0.000    71.612    50.000
-     2.000     1.000     0.000     0.000     0.000     0.000     1.000   252.409    50.000
-     2.000     1.000     0.000     0.000     1.000     0.000     0.000    70.170    50.000
-     2.000     1.000     0.000     0.000     1.000     0.000     1.000    13.363    50.000
-     2.000     1.000     0.000     1.000     0.000     0.000     0.000   389.026    50.000
-     2.000     1.000     0.000     1.000     0.000     0.000     1.000   251.331    50.000
-     2.000     1.000     0.000     1.000     1.000     0.000     0.000   152.028    50.000
-     2.000     1.000     0.000     1.000     1.000     0.000     1.000       nan    50.000
 
          k         p         d         q         P         D         Q     ratio         T
-     2.000     1.000     0.000     0.000     0.000     0.000     0.000   214.530   150.000
-     2.000     1.000     0.000     0.000     0.000     0.000     1.000   266.426   150.000
-     2.000     1.000     0.000     0.000     1.000     0.000     0.000   392.847   150.000
-     2.000     1.000     0.000     0.000     1.000     0.000     1.000    44.258   150.000
-     2.000     1.000     0.000     1.000     0.000     0.000     0.000   169.700   150.000
-     2.000     1.000     0.000     1.000     0.000     0.000     1.000   154.813   150.000
-     2.000     1.000     0.000     1.000     1.000     0.000     0.000   200.396   150.000
-     2.000     1.000     0.000     1.000     1.000     0.000     1.000    94.890   150.000
+     2.000     1.000     0.000     0.000     0.000     0.000     0.000   104.214    50.000
+     2.000     1.000     0.000     0.000     0.000     0.000     1.000   921.115    50.000
+     2.000     1.000     0.000     0.000     1.000     0.000     0.000   387.487    50.000
+     2.000     1.000     0.000     0.000     1.000     0.000     1.000   604.610    50.000
+     2.000     1.000     0.000     1.000     0.000     0.000     0.000   356.454    50.000
+     2.000     1.000     0.000     1.000     0.000     0.000     1.000   994.446    50.000
+     2.000     1.000     0.000     1.000     1.000     0.000     0.000   639.574    50.000
+     2.000     1.000     0.000     1.000     1.000     0.000     1.000   597.165    50.000
 
          k         p         d         q         P         D         Q     ratio         T
-     2.000     1.000     0.000     0.000     0.000     0.000     0.000    46.485   500.000
-     2.000     1.000     0.000     0.000     0.000     0.000     1.000   263.114   500.000
-     2.000     1.000     0.000     0.000     1.000     0.000     0.000  1072.107   500.000
-     2.000     1.000     0.000     0.000     1.000     0.000     1.000   156.242   500.000
-     2.000     1.000     0.000     1.000     0.000     0.000     0.000    71.163   500.000
-     2.000     1.000     0.000     1.000     0.000     0.000     1.000   170.018   500.000
-     2.000     1.000     0.000     1.000     1.000     0.000     0.000   420.875   500.000
-     2.000     1.000     0.000     1.000     1.000     0.000     1.000   119.827   500.000
+     2.000     1.000     0.000     0.000     0.000     0.000     0.000   254.626   150.000
+     2.000     1.000     0.000     0.000     0.000     0.000     1.000   722.975   150.000
+     2.000     1.000     0.000     0.000     1.000     0.000     0.000   557.668   150.000
+     2.000     1.000     0.000     0.000     1.000     0.000     1.000   532.198   150.000
+     2.000     1.000     0.000     1.000     0.000     0.000     0.000   129.406   150.000
+     2.000     1.000     0.000     1.000     0.000     0.000     1.000   530.360   150.000
+     2.000     1.000     0.000     1.000     1.000     0.000     0.000   315.756   150.000
+     2.000     1.000     0.000     1.000     1.000     0.000     1.000   613.605   150.000
 
          k         p         d         q         P         D         Q     ratio         T
-     2.000     1.000     0.000     0.000     0.000     0.000     0.000    52.148   744.000
-     2.000     1.000     0.000     0.000     0.000     0.000     1.000   154.960   744.000
-     2.000     1.000     0.000     0.000     1.000     0.000     0.000   475.544   744.000
-     2.000     1.000     0.000     0.000     1.000     0.000     1.000   191.071   744.000
-     2.000     1.000     0.000     1.000     0.000     0.000     0.000   115.788   744.000
-     2.000     1.000     0.000     1.000     0.000     0.000     1.000   274.934   744.000
-     2.000     1.000     0.000     1.000     1.000     0.000     0.000   765.818   744.000
-     2.000     1.000     0.000     1.000     1.000     0.000     1.000   147.624   744.000
+     2.000     1.000     0.000     0.000     0.000     0.000     0.000    62.697   500.000
+     2.000     1.000     0.000     0.000     0.000     0.000     1.000   501.449   500.000
+     2.000     1.000     0.000     0.000     1.000     0.000     0.000   977.901   500.000
+     2.000     1.000     0.000     0.000     1.000     0.000     1.000   283.050   500.000
+     2.000     1.000     0.000     1.000     0.000     0.000     0.000    62.054   500.000
+     2.000     1.000     0.000     1.000     0.000     0.000     1.000   769.268   500.000
+     2.000     1.000     0.000     1.000     1.000     0.000     0.000   491.848   500.000
+     2.000     1.000     0.000     1.000     1.000     0.000     1.000   295.669   500.000
+
+         k         p         d         q         P         D         Q     ratio         T
+     2.000     1.000     0.000     0.000     0.000     0.000     0.000    63.766   744.000
+     2.000     1.000     0.000     0.000     0.000     0.000     1.000   227.211   744.000
+     2.000     1.000     0.000     0.000     1.000     0.000     0.000   463.396   744.000
+     2.000     1.000     0.000     0.000     1.000     0.000     1.000   337.743   744.000
+     2.000     1.000     0.000     1.000     0.000     0.000     0.000    75.617   744.000
+     2.000     1.000     0.000     1.000     0.000     0.000     1.000   701.828   744.000
+     2.000     1.000     0.000     1.000     1.000     0.000     0.000   541.396   744.000
+     2.000     1.000     0.000     1.000     1.000     0.000     1.000   360.170   744.000
 

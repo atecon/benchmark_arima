@@ -1,22 +1,11 @@
 set verbose off
 set warnings off
 clear
-open data10-2.gdt
 
-include "../src/helper.inp" --force
-/*
-Arguments:  p d q [ ; P D Q ] ; depvar [ indepvars ]
-Options:    --verbose (print details of iterations)
-            --quiet (don't print out results)
-            --vcv (print covariance matrix)
-            --hessian (see below)
-            --opg (see below)
-            --nc (do not include a constant)
-            --conditional (use conditional maximum likelihood)
-            --x-12-arima (use X-12-ARIMA for estimation)
-            --lbfgs (use L-BFGS-B maximizer)
-            --y-diff-only (ARIMAX special, see below)
-*/
+# Set name of data set to load
+string DATASET_NAME = "electricity.csv"
+
+open "../data/@DATASET_NAME" --quiet --preserve
 
 # Set list of exogenous
 series Y = load
@@ -36,7 +25,16 @@ scalar QUIET = TRUE
 matrix SAMPLE_LENGTH = {50, 150, 500, 744}
 
 # store timing results
-matrix RESULTS = {}
+matrix gretl_results = {}
+
+# Source functions + external package
+include "../src/helper.inp" --force
+catch include string_utils.gfn
+if $error
+    # get from gretl package server
+    pkg install string_utils
+    include string_utils.gfn
+endif
 
 genr time
 
@@ -45,26 +43,22 @@ loop i = 1..cols(SAMPLE_LENGTH)
     smpl full
     smpl time <= SAMPLE_LENGTH[i] --restrict --replace
 
-    RESULTS |= loop_over_parameters(Y, L, RANGE_p, d, RANGE_q, RANGE_P, D, RANGE_Q, QUIET)
+    gretl_results |= loop_over_parameters(Y, L, RANGE_p, d, RANGE_q, RANGE_P, D, RANGE_Q, QUIET)
 
     printf "Info: Finished evaluation for T = %d observations.\n", $nobs
     flush
 endloop
 
+write_gretl_results_to_file (gretl_results, SAMPLE_LENGTH, DATASET_NAME, "../output/gretl_results.txt")
 
 # Import python results
 open "../data/python_arima_duration.csv" -p -q
-matrix python_res = {dataset}
-python_res = (python_res .= -999) ? NA : python_res
+matrix python_results = {dataset}
+python_results = (python_results .= -999) ? NA : python_results
 
-# Compute speed ratio
-matrix comparison = RESULTS[,1:7] ~ ((python_res[,8] ./ RESULTS[,8])) ~ python_res[,9]
-strings colnames = cnameget(RESULTS)
-colnames[8] = "ratio"
-cnameset(comparison, colnames)
-
-
-write_summary_to_file(comparison, SAMPLE_LENGTH, "summary_results.txt")
+# Compute speed ratio and write matrix comparing results
+matrix comparison = comparison_matrix(gretl_results, python_results)
+write_comparison_to_file(comparison, SAMPLE_LENGTH, DATASET_NAME, "../output/comparison_results.txt")
 printf "%10.3f\n", comparison
 
 
