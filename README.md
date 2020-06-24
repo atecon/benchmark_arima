@@ -1,7 +1,7 @@
 # SARIMAX estimation speed comparison between Python's 'statsmodels' package and Gretl
 The well-known M4 Competition on forecasting (https://www.sciencedirect.com/science/article/pii/S0169207019301128) indicated that pure machine learning and neural network methods performed worse than standard algorithms like ARIMA. Thus, even though not well-known in the data science community, yet -- under the tag *ARIMA* you'll find only 3 articles under kdnuggets.com (https://www.kdnuggets.com/tag/arima) -- ARIMA of time-series models belong to the standard repertoire of any data scientist or academic (for a mathemtical elaboration see Lütkepohl (2006)).
 
-The purpose of this project is to compare the speed of estimating the model coefficients of an ARIMA-type model for both Python's popular 'statsmodels' package and Gretl's built-in arima apparatus. Speed of estimation the model's parameters is crucial. For instance, if one wants to estimate separate models for a sales forecasting probleme for hundred thousands of articles, computational time is relevant. Also, the construction of probability forecasts or Monte Carlo simulations are computationally heavy.
+The purpose of this project is to compare the speed of estimating the model coefficients of an ARIMA-type model for both Python's popular 'statsmodels' package and Gretl's built-in arima apparatus. Speed of estimation the model's parameters is crucial. For instance, if one wants to estimate separate models for a sales forecasting problem for hundred thousands of articles, computational time is relevant. Also, the construction of probability forecasts or Monte Carlo simulations are computationally heavy.
 
 In the following we will describe our evaluation setting and use hourly time-series for illustration. We will estimate several different models of the so called SARIMAX type. SARIMAX stands for **seasonal** (S) **autoregressive** (AR) **integrated** (I) **moving-average** (MA) **with exogenous regressors** (X).
 
@@ -21,7 +21,7 @@ In the following we will describe our evaluation setting and use hourly time-ser
 An hourly data set of electricity loads and temperature dynamics (T = 744) is used. The data set is stored in in this repo under "./data/electricity".
 
 We estimate several small-scale SARIMAX type of models. The following variables are used:
-- Endogenous variable: ```load``` (time-series on electirity consumed)
+- Endogenous variable: ```load``` (time-series on electricity consumed)
 - Exogenous variable: ```temp``` (temperature) and ```intercept```
 
 The exercise is done for the following parameter ranges:
@@ -32,6 +32,14 @@ The exercise is done for the following parameter ranges:
 - ```P```: [0, 1]
 - ```D```: [0]
 - ```Q```: [0, 1]
+
+*Description:*
+- ```p```: maximum order of the autoregressive component
+- ```d```: maximum order of differencing
+- ```q```: maximum order of the moving-average component
+- ```P```: maximum order of the seasonal autoregressive component
+- ```D```: maximum order of differencing of the seasonal component
+- ```Q```: maximum order of the seasonal moving-average component
 
 We also run the exercise for different sample lengths:
 - ```T```: [50, 150, 500, 744]
