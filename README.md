@@ -1,5 +1,5 @@
 # SARIMAX estimation speed comparison between Python's 'statsmodels' package and Gretl
-The well-known M4 Competition on forecasting (https://www.sciencedirect.com/science/article/pii/S0169207019301128) indicated that pure machine learning and neural network methods performed worse than standard algorithms like ARIMA. Thus, even though not well-known in the data science community, yet, ARIMA of time-series models belong to the standard repertoire of any data scientist or academic. 
+The well-known M4 Competition on forecasting (https://www.sciencedirect.com/science/article/pii/S0169207019301128) indicated that pure machine learning and neural network methods performed worse than standard algorithms like ARIMA. Thus, even though not well-known in the data science community, yet -- under the tag *ARIMA* you'll find only 3 articles under kdnuggets.com (https://www.kdnuggets.com/tag/arima) -- ARIMA of time-series models belong to the standard repertoire of any data scientist or academic (for a mathemtical elaboration see Lütkepohl (2006)).
 
 The purpose of this project is to compare the speed of estimating the model coefficients of an ARIMA-type model for both Python's popular 'statsmodels' package and Gretl's built-in arima apparatus. Speed of estimation the model's parameters is crucial. For instance, if one wants to estimate separate models for a sales forecasting probleme for hundred thousands of articles, computational time is relevant. Also, the construction of probability forecasts or Monte Carlo simulations are computationally heavy.
 
@@ -126,3 +126,7 @@ Gretl code: ```./script/run_gretl.inp``` includes the Gretl code for running the
      2.000     1.000     0.000     1.000     1.000     0.000     0.000   541.396   744.000
      2.000     1.000     0.000     1.000     1.000     0.000     1.000   360.170   744.000
 
+
+# References
+- Lütkepohl, Helmut (2006): *New Introduction to Multiple Time Series Analysis*, Springer.
+- Spyros Makridakis, Evangelos Spiliotis, Vassilios Assimakopoulos (2020): "The M4 Competition: 100,000 time series and 61 forecasting methods", *International Journal of Forecasting*, Volume 36, Issue 1, Pages 54-74, https://doi.org/10.1016/j.ijforecast.2019.04.014.
